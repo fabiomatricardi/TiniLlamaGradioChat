@@ -3,10 +3,10 @@ import os
 from ctransformers import AutoModelForCausalLM, AutoConfig, Config #import for GGUF/GGML models
 import datetime
 
-i_temperature = 0.32 
+i_temperature = 0.30 
 i_max_new_tokens=1100
 modelfile = "models/tinyllama-1.1b-1t-openorca.Q4_K_M.gguf"
-i_repetitionpenalty = 1.15
+i_repetitionpenalty = 1.2
 i_contextlength=12048
 logfile = 'TinyLlamaOpenOrca1.1B-stream.txt'
 print("loading model...")

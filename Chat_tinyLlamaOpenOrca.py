@@ -14,7 +14,7 @@ stt = datetime.datetime.now()
 conf = AutoConfig(Config(temperature=i_temperature, repetition_penalty=i_repetitionpenalty, batch_size=64,
                 max_new_tokens=i_max_new_tokens, context_length=i_contextlength))
 llm = AutoModelForCausalLM.from_pretrained(modelfile,
-                                        model_type="llama",config = conf) #model_type="stablelm", 
+                                        model_type="llama",config = conf)
 dt = datetime.datetime.now() - stt
 print(f"Model loaded in {dt}")
 #MODEL SETTINGS also for DISPLAY
@@ -25,14 +25,14 @@ def writehistory(text):
         f.write('\n')
     f.close()
 
-with gr.Blocks(theme='ParityError/Interstellar') as demo:
+with gr.Blocks(theme='ParityError/Interstellar') as demo: 
     #TITLE SECTION
     with gr.Row():
         with gr.Column(scale=12):
             gr.HTML("<center>"
             + "<h1>🦙 TinyLlama 1.1B 🐋 OpenOrca 4K context window</h2></center>")  
             gr.Markdown("""
-            Currently Running: [tinyllama-1.1b-1t-openorca.Q4_K_M.gguf](https://huggingface.co/TheBloke/TinyLlama-1.1B-1T-OpenOrca-GGUF)
+            **Currently Running**: [tinyllama-1.1b-1t-openorca.Q4_K_M.gguf](https://huggingface.co/TheBloke/TinyLlama-1.1B-1T-OpenOrca-GGUF) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  **Chat History Log File**: *TinyLlamaOpenOrca1.1B-stream.txt*
 
             - **Base Model**: PY007/TinyLlama-1.1B-intermediate-step-480k-1T,  Fine tuned on OpenOrca GPT4 subset for 1 epoch,Using CHATML format. 
             - **License**: Apache 2.0, following the TinyLlama base model. The model output is not censored and the authors do not endorse the opinions in the generated content. Use at your own risk.
@@ -85,6 +85,7 @@ with gr.Blocks(theme='ParityError/Interstellar') as demo:
                         interactive=True,
                         label="Repetition Penalty",
                     )
+
                 clear = gr.Button("🗑️ Clear All Messages", variant='secondary')
     def user(user_message, history):
         writehistory(f"USER: {user_message}")
@@ -123,4 +124,3 @@ with gr.Blocks(theme='ParityError/Interstellar') as demo:
     
 demo.queue()  #required to yield the streams from the text generation
 demo.launch(inbrowser=True)
-

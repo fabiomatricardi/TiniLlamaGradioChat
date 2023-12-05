@@ -1,6 +1,6 @@
 import gradio as gr
 import os
-from ctransformers import AutoModelForCausalLM, AutoConfig, Config #import for GGML models
+from ctransformers import AutoModelForCausalLM, AutoConfig, Config #import for GGUF/GGML models
 import datetime
 
 i_temperature = 0.32 
@@ -25,7 +25,7 @@ def writehistory(text):
         f.write('\n')
     f.close()
 
-with gr.Blocks(theme='ParityError/Interstellar') as demo: #theme='ParityError/LimeFace'
+with gr.Blocks(theme='ParityError/Interstellar') as demo: '
     #TITLE SECTION
     with gr.Row():
         with gr.Column(scale=12):
@@ -37,7 +37,6 @@ with gr.Blocks(theme='ParityError/Interstellar') as demo: #theme='ParityError/Li
             - **Base Model**: PY007/TinyLlama-1.1B-intermediate-step-480k-1T,  Fine tuned on OpenOrca GPT4 subset for 1 epoch,Using CHATML format. 
             - **License**: Apache 2.0, following the TinyLlama base model. The model output is not censored and the authors do not endorse the opinions in the generated content. Use at your own risk.
             """)         
-        #with gr.Column(scale=1):
         gr.Image(value='./TinyLlama_logo.png', width=70)
    # chat and parameters settings
     with gr.Row():
@@ -48,13 +47,9 @@ with gr.Blocks(theme='ParityError/Interstellar') as demo: #theme='ParityError/Li
                 with gr.Column(scale=14):
                     msg = gr.Textbox(show_label=False, 
                                      placeholder="Enter text",
-                                     lines=2)#
-                #with gr.Column(min_width=5, ): #scale=1
-                #    pass
+                                     lines=2)
                 submitBtn = gr.Button("\n💬 Send\n", size="lg", variant="primary", min_width=180)
-                #with gr.Column(min_width=100, scale=2):
-                #    clear = gr.Button("\n🗑️ Clear\n", variant='secondary')                                  
-            #clear = gr.Button("🗑️ Clear All Messages", variant='secondary') #moved below parameters
+
         with gr.Column(min_width=50,scale=1):
                 with gr.Tab(label="Parameter Setting"):
                     gr.Markdown("# Parameters")
@@ -95,7 +90,7 @@ with gr.Blocks(theme='ParityError/Interstellar') as demo: #theme='ParityError/Li
         writehistory(f"USER: {user_message}")
         return "", history + [[user_message, None]]
 
-    def bot(history):
+    def bot(history,t,p,m,r):
         SYSTEM_PROMPT = """<|im_start|>system
         You are a helpful bot. Your answers are clear and concise.
         <|im_end|>
@@ -109,32 +104,23 @@ with gr.Blocks(theme='ParityError/Interstellar') as demo: #theme='ParityError/Li
             print("here we should pass more conversations")
         history[-1][1] = ""
         for character in llm(prompt, 
-                 temperature = 0.32,
-                 top_p = 0.95, 
-                 repetition_penalty = 1.15, 
-                 max_new_tokens=1200,
+                 temperature = t,
+                 top_p = p, 
+                 repetition_penalty = r, 
+                 max_new_tokens=m,
                  stop = ['<|im_end|>'],
                  stream = True):
             history[-1][1] += character
             yield history
-        """
-        for character in llm(prompt, 
-                 temperature = temperature,
-                 top_p = top_p, 
-                 repetition_penalty = rep_pen, 
-                 max_new_tokens=max_length_tokens,
-                 stop = ['<|im_end|>'],
-                 stream = True):
-            history[-1][1] += character
-            yield history
-        """
-        writehistory(f"BOT: {history}")    
-    # initially msg.submit()
+        writehistory(f"temperature: {t}, top_p: {p}, maxNewTokens: {m}, repetitionPenalty: {r}\n---\nBOT: {history}\n\n")
+        #Log in the terminal the messages
+        print(f"USER: {history[-1][0]}\n---\ntemperature: {t}, top_p: {p}, maxNewTokens: {m}, repetitionPenalty: {r}\n---\nBOT: {history[-1][1]}\n\n")    
+    # Clicking the submitBtn will call the generation with Parameters in the slides
     submitBtn.click(user, [msg, chatbot], [msg, chatbot], queue=False).then(
-        bot, chatbot, chatbot
+        bot, [chatbot,temperature,top_p,max_length_tokens,rep_pen], chatbot
     )
     clear.click(lambda: None, None, chatbot, queue=False)
     
-demo.queue()
+demo.queue()  #required to yield the streams from the text generation
 demo.launch(inbrowser=True)
 

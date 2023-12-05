@@ -25,7 +25,7 @@ def writehistory(text):
         f.write('\n')
     f.close()
 
-with gr.Blocks(theme='ParityError/Interstellar') as demo: '
+with gr.Blocks(theme='ParityError/Interstellar') as demo:
     #TITLE SECTION
     with gr.Row():
         with gr.Column(scale=12):
